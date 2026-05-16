@@ -1,2 +1,7 @@
-import { APP_NAME } from "@helpdesk/shared";
-console.log(`${APP_NAME} server is starting`);
+import app from "./app.js";
+import { env } from "./config/env.js";
+
+app.listen(env.PORT, () => {
+  console.log(`Server running on http://localhost:${env.PORT}`);
+  console.log(`Environment : ${env.NODE_ENV}`);
+});

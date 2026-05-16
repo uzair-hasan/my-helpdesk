@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  AGENT
+  ADMIN
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  PENDING
+  RESOLVED
+  CLOSED
+  ESCALATED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum PredictionType {
+  CATEGORY
+  PRIORITY
+  SENTIMENT
+}
+
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  name         String
+  role         Role     @default(USER)
+  avatarUrl    String?  @map("avatar_url")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  createdTickets  Ticket[]      @relation("CreatedTickets")
+  assignedTickets Ticket[]      @relation("AssignedTickets")
+  comments        Comment[]
+  activityLogs    ActivityLog[]
+  attachments     Attachment[]
+
+  @@map("users")
+}
+
+model Ticket {
+  id              String          @id @default(uuid())
+  title           String          
+  description     String
+  status          TicketStatus    @default(OPEN)
+  priority        Priority        @default(MEDIUM)
+  categoryId      String?         @map("category_id")
+  createdById     String         @map("created_by_id")
+  assignedToId    String?         @map("assigned_to_id")
+  dueDate         DateTime?       @map("due_date")    
+  resolvedAt      DateTime?       @map("resolved_at")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")  
+
+// Relations
+  category    Category?    @relation(fields: [categoryId], references: [id])
+  createdBy   User         @relation("CreatedTickets", fields: [createdById], references: [id])
+  assignedTo  User?        @relation("AssignedTickets", fields: [assignedToId], references: [id])
+  comments    Comment[]
+  attachments Attachment[]
+  activityLogs ActivityLog[]
+  predictions  AIPrediction[]
+  
+
+  @@index([status])
+  @@index([priority])
+  @@index([createdById])
+  @@index([assignedToId])
+  @@map("tickets")
+
+  }
+
+
+
+  model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  tickets Ticket[]
+
+  @@map("categories")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  ticketId  String   @map("ticket_id")
+  userId    String   @map("user_id")
+  content   String
+  isInternal Boolean @default(false) @map("is_internal")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  ticket Ticket @relation(fields: [ticketId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([ticketId])
+  @@map("comments")
+}
+
+model Attachment {
+  id         String   @id @default(uuid())
+  ticketId   String   @map("ticket_id")
+  uploadedBy String   @map("uploaded_by")
+  fileName   String   @map("file_name")
+  fileUrl    String   @map("file_url")
+  fileSize   Int      @map("file_size")
+  mimeType   String   @map("mime_type")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  ticket Ticket @relation(fields: [ticketId], references: [id])
+  user   User   @relation(fields: [uploadedBy], references: [id])
+
+  @@index([ticketId])
+  @@map("attachments")
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  ticketId  String   @map("ticket_id")
+  userId    String   @map("user_id")
+  action    String
+  oldValue  String?  @map("old_value")
+  newValue  String?  @map("new_value")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  ticket Ticket @relation(fields: [ticketId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([ticketId])
+  @@map("activity_logs")
+}
+
+model AIPrediction {
+  id             String         @id @default(uuid())
+  ticketId       String         @map("ticket_id")
+  predictionType PredictionType @map("prediction_type")
+  predictedValue String         @map("predicted_value")
+  confidence     Float
+  accepted       Boolean?
+  createdAt      DateTime       @default(now()) @map("created_at")
+
+  // Relations
+  ticket Ticket @relation(fields: [ticketId], references: [id])
+
+  @@index([ticketId])
+  @@map("ai_predictions")
+}
