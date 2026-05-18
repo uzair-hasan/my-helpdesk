@@ -1,17 +1,52 @@
-import { APP_NAME } from "@helpdesk/shared";
-import { ThemeToggle } from "./components/theme-toggle";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import RegisterPage from "./pages/auth/register";
+import LoginPage from "./pages/auth/login";
+import { ProtectedRoute } from "./components/protected-route";
+import { DashboardLayout } from "./components/layout/dashboard-layout";
 
 function App() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="flex itmes-center justify-between p-4 border-b">
-        <h1 className="text-xl font-bold">HelpDesk</h1>
-        <ThemeToggle />
-      </header>
+    <BrowserRouter>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
 
-      <main className="flex items-center justify-center p-8">
-        <p className="text-muted-foreground">Theme switching works!</p>
-      </main>
+        {/* Protected routes - all nested under DashboardLayout */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/dashboard" element={<DashboardHome />} />
+          <Route path="/tickets" element={<Placeholder title="Tickets" />} />
+          <Route path="/users" element={<Placeholder title="Users" />} />
+          <Route path="/settings" element={<Placeholder title="Settings" />} />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+// Temporary placeholders - we'll replace these with real pages
+function DashboardHome() {
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
+      <p className="text-muted-foreground">Welcome to your helpdesk dashboard.</p>
+    </div>
+  );
+}
+
+function Placeholder({ title }: { title: string }) {
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-2">{title}</h1>
+      <p className="text-muted-foreground">This page is coming soon.</p>
     </div>
   );
 }
