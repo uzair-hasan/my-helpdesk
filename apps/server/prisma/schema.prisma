@@ -27,6 +27,7 @@ enum Priority {
   MEDIUM
   HIGH
   CRITICAL
+  
 }
 
 enum PredictionType {
