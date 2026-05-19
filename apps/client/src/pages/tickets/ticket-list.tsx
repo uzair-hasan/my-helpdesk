@@ -66,10 +66,14 @@ export default function TicketListPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const navigate = useNavigate();
 
+  // pagination
+  const [page, setPage] = useState(1);
+
   // TanStack Query - fetch tickets with filters
   const { data, isLoading, error } = useTickets({
     status: statusFilter || undefined,
     priority: priorityFilter || undefined,
+    page,
   });
 
   // TanStack Query - create ticket mutation
@@ -198,7 +202,10 @@ export default function TicketListPage() {
       <div className="flex gap-3 mb-4">
         <Select
           value={statusFilter}
-          onValueChange={(v) => setStatusFilter(v === "all" ? "" : v)}
+          onValueChange={(v) => {
+            setStatusFilter(v === "all" ? "" : v);
+            setPage(1);
+          }}
         >
           <SelectTrigger className="w-40">
             <SelectValue placeholder="All Statuses" />
@@ -214,7 +221,10 @@ export default function TicketListPage() {
 
         <Select
           value={priorityFilter}
-          onValueChange={(v) => setPriorityFilter(v === "all" ? "" : v)}
+          onValueChange={(v) => {
+            setPriorityFilter(v === "all" ? "" : v);
+            setPage(1);
+          }}
         >
           <SelectTrigger className="w-40">
             <SelectValue placeholder="All Priorities" />
@@ -317,10 +327,36 @@ export default function TicketListPage() {
             </Table>
           </div>
 
-          {data.pagination.total > 0 && (
-            <p className="text-sm text-muted-foreground mt-3">
-              Showing {data.tickets.length} of {data.pagination.total} tickets
-            </p>
+          {data.pagination.totalPages > 0 && (
+            <div className="flex items-center justify-between mt-4">
+              <p className="text-sm text-muted-foreground">
+                Showing {data.tickets.length} of {data.pagination.total} tickets
+              </p>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={"outline"}
+                  size={"sm"}
+                  onClick={() => setPage((p) => p - 1)}
+                  disabled={page === 1}
+                >
+                  Previous
+                </Button>
+
+                <span className="text-sm text-muted-foreground">
+                  Page {data.pagination.page} of {data.pagination.totalPages}
+                </span>
+
+                <Button
+                  variant={"outline"}
+                  size={"sm"}
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={page >= data.pagination.totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
           )}
         </>
       )}

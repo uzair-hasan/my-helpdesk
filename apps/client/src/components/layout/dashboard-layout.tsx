@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { ThemeToggle } from "../theme-toggle";
 import { Sidebar } from "./sidebar";
+import { BreadCrumb } from "../breadcrumb";
 
 export function DashboardLayout() {
   return (
@@ -16,6 +17,7 @@ export function DashboardLayout() {
 
           {/* main content */}
           <main className="flex-1 overflow-y-auto p-6">
+            <BreadCrumb />
             <Outlet />
           </main>
         </div>
