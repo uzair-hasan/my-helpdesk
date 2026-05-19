@@ -47,8 +47,25 @@ export class TicketController {
   // update
   async update(req: Request, res: Response) {
     try {
-      const ticket = await ticketService.update(req.params.id as string, req.body);
+      const ticket = await ticketService.update(
+        req.params.id as string,
+        req.body,
+      );
       res.json(ticket);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  // add-comment
+  async addComment(req: Request, res: Response) {
+    try {
+      const comment = await ticketService.addComment(
+        req.params.id as string,
+        req.user!.userId,
+        req.body.content,
+      );
+      res.status(201).json(comment);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

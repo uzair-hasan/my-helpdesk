@@ -129,4 +129,24 @@ export class TicketService {
     });
     return ticket;
   }
+
+  // add-comment
+  async addComment(ticketId: string, userId: string, content: string) {
+    // verify ticket exist
+    const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
+    if (!ticket) {
+      throw new Error("Ticket not found");
+    }
+    const comment = await prisma.comment.create({
+      data: {
+        ticketId,
+        userId,
+        content,
+      },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+      },
+    });
+    return comment;
+  }
 }

@@ -3,6 +3,8 @@ import RegisterPage from "./pages/auth/register";
 import LoginPage from "./pages/auth/login";
 import { ProtectedRoute } from "./components/protected-route";
 import { DashboardLayout } from "./components/layout/dashboard-layout";
+import TicketListPage from "./pages/tickets/ticket-list";
+import TicketDetailPage from "./pages/tickets/ticket-detail";
 
 function App() {
   return (
@@ -21,7 +23,8 @@ function App() {
           }
         >
           <Route path="/dashboard" element={<DashboardHome />} />
-          <Route path="/tickets" element={<Placeholder title="Tickets" />} />
+          <Route path="/tickets" element={<TicketListPage />} />
+          <Route path="/tickets/:id" element={<TicketDetailPage />} />
           <Route path="/users" element={<Placeholder title="Users" />} />
           <Route path="/settings" element={<Placeholder title="Settings" />} />
         </Route>
@@ -37,7 +40,9 @@ function DashboardHome() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
-      <p className="text-muted-foreground">Welcome to your helpdesk dashboard.</p>
+      <p className="text-muted-foreground">
+        Welcome to your helpdesk dashboard.
+      </p>
     </div>
   );
 }
