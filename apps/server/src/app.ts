@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import { timeStamp } from "console";
 import authRoutes from "./routes/auth.routes.js";
 import ticketRoutes from "./routes/ticket.routes.js";
+import userRoutes from "./routes/user.routes.js";
 
 const app = express();
 
@@ -29,5 +30,6 @@ app.get("/health", (_req, res) => {
 // routes
 app.use("/api/auth", authRoutes);
 app.use("/api/tickets", ticketRoutes);
+app.use("/api/users", userRoutes);
 
 export default app;

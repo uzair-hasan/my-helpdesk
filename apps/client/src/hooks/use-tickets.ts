@@ -102,13 +102,14 @@ export function useUpdateTicket() {
       id: string;
       status?: string;
       priority?: string;
-      assignedToId: string;
+      assignedToId?: string;
     }) => {
       const { data } = await api.patch(`/tickets/${id}`, input);
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      queryClient.invalidateQueries({ queryKey: ["ticket", variables.id] });
     },
   });
 }

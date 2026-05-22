@@ -6,6 +6,15 @@ import { ArrowLeft, Loader2, Send } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useUpdateTicket } from "@/hooks/use-tickets";
+import { useAssignableUsers } from "@/hooks/use-users";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const statusColors: Record<string, string> = {
   OPEN: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
@@ -37,6 +46,19 @@ export default function TicketDetailPage() {
       toast.success("Comment added!");
     } catch {
       toast.error("Failed to add comment");
+    }
+  };
+
+  // update ticket
+  const updateTicket = useUpdateTicket();
+  const { data: assignableUsers } = useAssignableUsers();
+
+  const handleUpdate = async (field: string, value: string) => {
+    try {
+      await updateTicket.mutateAsync({ id: id!, [field]: value });
+      toast.success("Ticket updated");
+    } catch {
+      toast.error("Failed to update ticket");
     }
   };
 
@@ -96,22 +118,68 @@ export default function TicketDetailPage() {
           <p className="text-sm text-muted-foreground whitespace-pre-wrap">
             {ticket.description}
           </p>
-          <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t text-sm">
-            <div>
-              <span className="text-muted-foreground">Assigned To:</span>
-              <span className="ml-2">
-                {ticket.assignedTo?.name ?? "Unassigned"}
-              </span>
+          <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t text-sm">
+            <div className="space-y-1">
+              <span className="text-muted-foreground">Status</span>
+              <Select
+                value={ticket.status}
+                onValueChange={(v) => handleUpdate("status", v)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="OPEN">Open</SelectItem>
+                  <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                  <SelectItem value="RESOLVED">Resolved</SelectItem>
+                  <SelectItem value="CLOSED">Closed</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div>
-              <span className="text-muted-foreground">Category:</span>
-              <span className="ml-2">{ticket.category?.name ?? "None"}</span>
+
+            <div className="space-y-1">
+              <span className="text-muted-foreground">Priority</span>
+              <Select
+                value={ticket.priority}
+                onValueChange={(v) => handleUpdate("priority", v)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="LOW">Low</SelectItem>
+                  <SelectItem value="MEDIUM">Medium</SelectItem>
+                  <SelectItem value="HIGH">High</SelectItem>
+                  <SelectItem value="CRITICAL">Critical</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div>
-              <span className="text-muted-foreground">Updated:</span>
-              <span className="ml-2">
-                {new Date(ticket.updatedAt).toLocaleDateString()}
-              </span>
+
+            <div className="space-y-1">
+              <span className="text-muted-foreground">Assigned To</span>
+              <Select
+                value={ticket.assignedTo?.id ?? "unassigned"}
+                onValueChange={(v) =>
+                  handleUpdate("assignedToId", v === "unassigned" ? "" : v)
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                  {assignableUsers?.map((user) => (
+                    <SelectItem key={user.id} value={user.id}>
+                      {user.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <span className="text-muted-foreground">Category</span>
+              <span className="block">{ticket.category?.name ?? "None"}</span>
             </div>
           </div>
         </div>

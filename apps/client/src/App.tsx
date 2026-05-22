@@ -5,6 +5,7 @@ import { ProtectedRoute } from "./components/protected-route";
 import { DashboardLayout } from "./components/layout/dashboard-layout";
 import TicketListPage from "./pages/tickets/ticket-list";
 import TicketDetailPage from "./pages/tickets/ticket-detail";
+import UserListPage from "./pages/users/user-list";
 
 function App() {
   return (
@@ -25,7 +26,8 @@ function App() {
           <Route path="/dashboard" element={<DashboardHome />} />
           <Route path="/tickets" element={<TicketListPage />} />
           <Route path="/tickets/:id" element={<TicketDetailPage />} />
-          <Route path="/users" element={<Placeholder title="Users" />} />
+          {/* users path */}
+          <Route path="/users" element={<UserListPage />} />
           <Route path="/settings" element={<Placeholder title="Settings" />} />
         </Route>
 
